@@ -149,6 +149,3 @@ while true
   print l.ewal
   print "\n"
 end
-
-
-(print 1)
