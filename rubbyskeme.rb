@@ -12,7 +12,7 @@ class Environment
   end
 
   def find(key)
-   # binding.pry
+    # binding.pry
     @map[key.to_sym] || @parent.find(key)
   end
 
@@ -22,7 +22,7 @@ class Environment
 end
 
 GLOBAL_ENV = Environment.new(
-      {:+ => Proc.new { |lst| lst.inject(:+)}}
+             {:+ => Proc.new { |lst| lst.inject(:+)}}
            )
 
 class List
@@ -32,14 +32,6 @@ class List
     @lst = lst
   end
   
-  def <<(obj)
-    @lst << obj
-  end
-
-  def to_s
-    @lst.to_s
-  end
-
   def ewal(env = GLOBAL_ENV)
     operator = @lst[0]
     if operator.is_def?
@@ -50,17 +42,18 @@ class List
       value = @lst[2].ewal
       env.add(name,value)
     elsif operator.is_lambda?
-      arglist = @lst[1]
-      unless arglist.is_a? List
-        raise "arguments to lambda need to be a list"
+      argnames = @lst[1]
+      unless (argnames.is_a? List) && (argnames.all? { |a| a.is_a? Atom })
+        raise "arguments to lambda need to be a list of atoms"
       end
       #
       body = List.new(@lst[2..-1])
       
       Proc.new do |args|
-        argname = :a
-        lambda_env = env.create_child({:a => args[0]})
-        
+        unless argnames.length == args.length
+          raise "incorrect number of arguments supplied to function"
+        end
+        lambda_env = env.create_child(Hash[argnames.map(&:to_sym).zip(args)])
         for form in body.lst
           ret = form.ewal(lambda_env)
         end
@@ -73,6 +66,9 @@ class List
     elsif operator.is_a? List
       func = operator.ewal.call(lst[1..-1].map{ |x| x.ewal(env) })
     end
+  end
+  def method_missing(sym, *args, &block)
+    @lst.send sym, *args, &block
   end
 end
 
@@ -149,6 +145,3 @@ while true
   print l.ewal
   print "\n"
 end
-
-
-(print 1)
