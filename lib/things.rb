@@ -1,8 +1,6 @@
 module RubbySkeme
-  module Types
-    # A Type is an Atom, a Pair, or a List
-    
-
+  module Things
+    # A Thing is an Atom, a Pair, or a List
     class Atom 
       # An Atom is a Number, a String, or a Symbol
       attr_accessor :value

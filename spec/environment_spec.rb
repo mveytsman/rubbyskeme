@@ -1,4 +1,4 @@
-require_relative "../environment.rb"
+require_relative "../lib/environment.rb"
 include RubbySkeme
 describe Environment do
   it "should add keys" do
